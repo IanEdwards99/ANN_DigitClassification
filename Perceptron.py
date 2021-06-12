@@ -53,6 +53,7 @@ class Perceptron:
 			if abs(prediction - labels[i]) < self.float_threshold:
 				num_correct += 1.0 
 			elif verbose:
-				print('Perceptron failed on example' + str(examples[i]) + '\nPredicted: ' + str(prediction) + ' Correct Output: ' + str(labels[i]))
+				continue
+				#print('Perceptron failed on example' + str(examples[i]) + '\nPredicted: ' + str(prediction) + ' Correct Output: ' + str(labels[i]))
 
 		return num_correct / len(examples)

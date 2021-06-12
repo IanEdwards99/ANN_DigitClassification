@@ -5,9 +5,9 @@ from Perceptron import Perceptron
 if __name__ == '__main__':
 
 
-	generate_training_set = False
+	generate_training_set = True
 	num_train = 100
-	generate_validation_set = False
+	generate_validation_set = True
 	num_valid = 100
 
 	training_examples = [[1.0, 1.0],
@@ -44,6 +44,7 @@ if __name__ == '__main__':
 	AND = Perceptron(2, bias=-1.0)
 
 	print(AND.weights)
+	original = AND.validate(validate_examples, validate_labels, verbose=True)
 	valid_percentage = AND.validate(validate_examples, validate_labels, verbose=True)
 	print(valid_percentage)
 	i = 0
@@ -61,3 +62,14 @@ if __name__ == '__main__':
 		# You shouldn't need to do this as your networks may require much longer to train. 
 		if i == 50: 
 			break
+
+	print(AND.predict([0, 0]))
+	print(AND.predict([1, 0]))
+	print(AND.predict([0, 1]))
+	print(AND.predict([1, 1]))
+
+	print(AND.activate([0, 0]))
+	print(AND.activate([1, 0]))
+	print(AND.activate([0, 1]))
+	print(AND.activate([1, 1]))
+	print(original)
