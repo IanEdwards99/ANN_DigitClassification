@@ -9,14 +9,17 @@ from random import randint
 
 #The XOR gate program implements a XOR gate with a feed forward Perceptron ANN
 def main():
-    NOT = Perceptron(1)
+    NOT = Perceptron(1) #create perceptrons with number of inputs
     AND = Perceptron(2, bias = -1)
     OR = Perceptron(2, bias = -0.25, seeded_weights=[1,1])
 
+    #Generate data sets for each perceptron
     x_train, AND_train, x_val, AND_val = generateData(300, 100, "AND")
     print("Training GATE_0 - AND Gate")
+    #train perceptron
     AND, success = train(AND, x_train, AND_train, x_val, AND_val, 0.001)
 
+    #If no convergence after 2000 iterations, stop and retry.
     while not success:
         x_train, AND_train, x_val, AND_val = generateData(300, 100, "AND")
         AND, success = train(AND, x_train, AND_train, x_val, AND_val, 0.001)
@@ -29,6 +32,7 @@ def main():
         x_train, NOT_train, x_val, NOT_val = generateData(300, 100, "NOT")
         NOT, success = train(NOT, x_train, NOT_train, x_val, NOT_val, 0.001)
 
+    #OR implementation did not work...alternative was used.
     #x_train, OR_train, x_val, OR_val = generateData(100, 100, "OR")
     # x_train = [[0,0], [0, 1], [1,0], [1,1]]
     # OR_train = [0,1,1,1]
@@ -38,30 +42,31 @@ def main():
     # print("OR answer:", OR.activate([x1,x2]))
     print("Constructing Network...")
     print("Done!")
-    data = input("Please enter two inputs:\n")
+    data = input("Please enter two inputs:\n") #Get user input for XOR gate inputs
     while(data != "exit"):
         x1, x2 = data.split()
+        #call classify function
         output = classify(AND, NOT, (float)(x1), (float)(x2))
         print("XOR Gate:", output)
         data = input("Please enter two inputs:\n")
     print("Exiting...")
     
     
-
+#train perceptron method
 def train(perceptron, training_data, training_labels, val_data, val_labels, lr):
     valid_percentage = perceptron.validate(training_data, training_labels, verbose=True)
     #print("before %:", valid_percentage)
 
     i = 0
-    while valid_percentage < 0.98: # We want our Perceptron to have an accuracy of at least 80%
+    while valid_percentage < 0.98: # We want our Perceptron to have an accuracy of at least 98%
         i += 1
         perceptron.train(training_data, training_labels, lr)  # Train our Perceptron
         valid_percentage = perceptron.validate(val_data, val_labels, verbose=True) # Validate it
-        if i > 2000:
+        if i > 2000: #Stop after 2000 epochs and return False = no convergence
             return perceptron, False
     return perceptron, True
 
-def generateData(num_train, num_val, gateType="AND"):
+def generateData(num_train, num_val, gateType="AND"): #Create data sets (training and validation)
     training_examples = []
     training_labels = []
 
@@ -92,7 +97,7 @@ def generateData(num_train, num_val, gateType="AND"):
 
     return training_examples, training_labels, validate_examples, validate_labels
 
-def classify(AND, NOT, x1, x2):
+def classify(AND, NOT, x1, x2): #Classify function puts together boolean logic for XOR gate: (AB)’ (A’ B’)’
     intermediary = NOT.activate([AND.activate([NOT.activate([x1]),NOT.activate([x2])])])
     return AND.activate([NOT.activate([AND.activate([x1,x2])]),intermediary])
     #return AND.activate([NOT.activate([AND.activate([x1,x2])]), OR.activate([x1,x2])])

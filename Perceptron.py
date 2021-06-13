@@ -1,5 +1,6 @@
 # Simple Perceptron class
 # June 2021
+# Altered from CSC3022F Brandon Gower-Winter, used by Ian Edwards EDWIAN004 on 13 June 2021.
 
 import random
 
