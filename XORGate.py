@@ -20,68 +20,82 @@ def main(): #get arguments passed in.
     x1 = args.x1
     x2 = args.x2
 
-    NAND = Perceptron(2, bias = 1.0)
-    AND = Perceptron(2, bias = -1.0)
-    OR = Perceptron(2, bias = -1)
+    NOT = Perceptron(1)
+    AND = Perceptron(2)
+    OR = Perceptron(2)
 
-    x_train, AND_train, NAND_train, OR_train, x_val, AND_val, NAND_val, OR_val = generateData(100)
+    x_train, AND_train, x_val, AND_val = generateData(100, 100, "AND")
     print("AND")
-    AND = train(AND, x_train, AND_train, x_val, AND_val)
-    print("NAND")
-    NAND = train(NAND, x_train, NAND_train, x_val, NAND_val)
-    print("NAND answer:", NAND.activate([x1,x2]))
+    AND = train(AND, x_train, AND_train, x_val, AND_val, 0.1)
+    ANDanswer = AND.activate([x1,x2])
+    print("AND answer:", ANDanswer)
+
+    x_train, NOT_train, x_val, NOT_val = generateData(100, 100, "NOT")
+
+    print("NOT")
+    NOT = train(NOT, x_train, NOT_train, x_val, NOT_val, 0.001)
+    print("NOT answer:", NOT.activate([ANDanswer]))
+
+    x_train, OR_train, x_val, OR_val = generateData(100, 100, "OR")
+    # x_train = [[0,0], [0, 1], [1,0], [1,1]]
+    # OR_train = [0,1,1,1]
+    x_val = x_train
+    OR_val = OR_train
     print("OR")
-    OR = train(OR, x_train, OR_train, x_val, OR_val)
+    OR = train(OR, x_train, OR_train, x_val, OR_val, 0.001)
     print("OR answer:", OR.activate([x1,x2]))
-    output = classify(AND, NAND, OR, x1, x2)
-    print("Answer:", output)
+
+   # output = classify(AND, NOT, OR, x1, x2)
+    #print("Answer:", output)
 
 
 
-def train(perceptron, training_data, training_labels, val_data, val_labels):
+def train(perceptron, training_data, training_labels, val_data, val_labels, lr):
     valid_percentage = perceptron.validate(training_data, training_labels, verbose=True)
     print("before %:", valid_percentage)
 
     i = 0
-    while valid_percentage < 0.96: # We want our Perceptron to have an accuracy of at least 80%
+    while valid_percentage < 0.95: # We want our Perceptron to have an accuracy of at least 80%
         i += 1
-        perceptron.train(training_data, training_labels, 0.1)  # Train our Perceptron
-        # print('------ Iteration ' + str(i) + ' ------')
-        # print(perceptron.weights)
-        valid_percentage = perceptron.validate(val_data, val_labels, verbose=True) # Validate it
-        # print(valid_percentage)
-        if i == 5000: 
-            break
+        perceptron.train(training_data, training_labels, lr)  # Train our Perceptron
+        valid_percentage = round(perceptron.validate(val_data, val_labels, verbose=True),2) # Validate it
+        print(valid_percentage)
     print("after %:", perceptron.validate(val_data, val_labels, verbose=True))
     return perceptron
 
-def generateData(num_train):
+def generateData(num_train, num_val, gateType="AND"):
     training_examples = []
-    training_labels_NAND = []
-    training_labels_AND = []
-    training_labels_OR = []
+    training_labels = []
 
     for i in range(num_train):
-        training_examples.append([random.random(), random.random()])
-        training_labels_AND.append(1.0 if training_examples[i][0] >= 0.75 and training_examples[i][1] >= 0.75 else 0.0)
-        training_labels_OR.append(1.0 if training_examples[i][0] >= 0.75 or training_examples[i][1] >= 0.75 else 0.0)
-        training_labels_NAND.append(0.0 if training_examples[i][0] >= 0.75 and training_examples[i][1] >= 0.75 else 1.0)
+        if gateType == "AND":
+            training_examples.append([round(random.uniform(-0.25,1.25), 2), round(random.uniform(-0.25,1.25), 2)])
+            training_labels.append(1.0 if training_examples[i][0] > 0.75 and training_examples[i][1] > 0.75 else 0.0)
+        elif gateType == "OR":
+            training_examples.append([round(random.uniform(-0.25,1.25), 2), round(random.uniform(-0.25,1.25), 2)])
+            training_labels.append(1.0 if training_examples[i][0] > 0.75 or training_examples[i][1] > 0.75 else 0.0)
+        elif gateType == "NOT":
+            training_examples.append([round(random.uniform(-0.25,1.25), 2)])
+            training_labels.append(0.0 if training_examples[i][0] > 0.75 else 1.0)
 
     validate_examples = []
-    validate_labels_NAND = []
-    validate_labels_AND = []
-    validate_labels_OR = []
+    validate_labels = []
 
-    for i in range(num_train):
-        validate_examples.append([random.random(), random.random()])
-        validate_labels_AND.append(1.0 if validate_examples[i][0] >= 0.75 and validate_examples[i][1] >= 0.75 else 0.0)
-        validate_labels_OR.append(1.0 if validate_examples[i][0] >= 0.75 or validate_examples[i][1] >= 0.75 else 0.0)
-        validate_labels_NAND.append(0.0 if validate_examples[i][0] >= 0.75 and validate_examples[i][1] >= 0.75 else 1.0)
+    for i in range(num_val):
+        if gateType == "AND":
+            validate_examples.append([round(random.uniform(-0.25,1.25), 2), round(random.uniform(-0.25,1.25), 2)])
+            validate_labels.append(1.0 if validate_examples[i][0] > 0.75 and validate_examples[i][1] > 0.75 else 0.0)
+        elif gateType == "OR":
+            validate_examples.append([round(random.uniform(-0.25,1.25), 2), round(random.uniform(-0.25,1.25), 2)])
+            validate_labels.append(1.0 if validate_examples[i][0] > 0.75 or validate_examples[i][1] > 0.75 else 0.0)
+        elif gateType == "NOT":
+            validate_examples.append([round(random.uniform(-0.25,1.25), 2)])
+            validate_labels.append(0.0 if validate_examples[i][0] > 0.75 else 1.0)
 
-    return training_examples, training_labels_AND, training_labels_NAND, training_labels_OR, validate_examples, validate_labels_AND, validate_labels_NAND, validate_labels_OR
+    return training_examples, training_labels, validate_examples, validate_labels
 
-def classify(AND, NAND, OR, x1, x2):
-    return AND.activate([NAND.activate([x1,x2]), OR.activate([x1,x2])])
+def classify(AND, NOT, OR, x1, x2):
+    return AND.activate([NOT.activate([AND.activate([x1,x2])]), OR.activate([x1,x2])])
 
 if __name__ == "__main__":
     main()

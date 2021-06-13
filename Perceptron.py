@@ -12,7 +12,7 @@ class Perceptron:
 
 		# The line below uses list comprehension to generate the weights list for out perceptron. If seeded_weights is None, the weights will
 		# be randomly initialized to be a value between [0,1) else the weights[i] will be set to whatever the value of seeded_weights[i] is.
-		self.weights = [random.random() for i in range(num_inputs)] if seeded_weights is None else [seeded_weights[i] for i in range(num_inputs)]
+		self.weights = [round(random.random(),2) for i in range(num_inputs)] if seeded_weights is None else [seeded_weights[i] for i in range(num_inputs)]
 		self.bias = bias
 		self.float_threshold = float_threshold
 
@@ -35,13 +35,14 @@ class Perceptron:
 	def train(self, examples: [[float]], labels: [float], learning_rate: float):
 		"""NOTE: This function will run the each input example[i] through the activate function and compare its output to the label labels[i].
 		if the output does not match, the perceptron learning rule is applied and each weight of the perceptron is modified in accordance with the rule."""
-
+		print("Learning rant: ", learning_rate)
 		for i in range(len(examples)):
 
 			predicted_val = self.activate(examples[i])
 			
 			for w in range(self.num_inputs):
 				self.learn(w, predicted_val, labels[i], examples[i][w], learning_rate)
+			self.bias += learning_rate * (labels[i] - predicted_val)
 
 
 	def validate(self, examples: [[float]], labels: [float], verbose: bool = False) -> float:
@@ -52,8 +53,8 @@ class Perceptron:
 			prediction = self.activate(examples[i])
 			if abs(prediction - labels[i]) < self.float_threshold:
 				num_correct += 1.0 
-			elif verbose:
-				continue
+			# elif verbose:
+			# 	continue
 				#print('Perceptron failed on example' + str(examples[i]) + '\nPredicted: ' + str(prediction) + ' Correct Output: ' + str(labels[i]))
 
-		return num_correct / len(examples)
+		return round(num_correct / len(examples), 2)

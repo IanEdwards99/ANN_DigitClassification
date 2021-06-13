@@ -28,7 +28,10 @@ if __name__ == '__main__':
 		for i in range(num_train):
 			training_examples.append([random.random(), random.random()])
 			# We want our perceptron to be noise tolerant, so we label all examples where x1 and x2 > 0.8 as 1.0
-			training_labels.append(1.0 if training_examples[i][0] > 0.8 and training_examples[i][1] > 0.8 else 0.0)
+			if (training_examples[i][0] > 0.8 or training_examples[i][1] > 0.8):
+				training_labels.append(1.0)
+			else:
+				training_labels.append(0.0)
 
 	if generate_validation_set:
 
@@ -37,7 +40,10 @@ if __name__ == '__main__':
 
 		for i in range(num_train):
 			validate_examples.append([random.random(), random.random()])
-			validate_labels.append(1.0 if validate_examples[i][0] > 0.8 and validate_examples[i][1] > 0.8 else 0.0)
+			if (validate_examples[i][0] > 0.8 or validate_examples[i][1] > 0.8):
+				validate_labels.append(1.0)
+			else:
+				validate_labels.append(0.0)
 
 
 	# Create Perceptron
@@ -52,7 +58,7 @@ if __name__ == '__main__':
 
 		i += 1
 
-		AND.train(training_examples, training_labels, 0.2)  # Train our Perceptron
+		AND.train(training_examples, training_labels, 0.01)  # Train our Perceptron
 		print('------ Iteration ' + str(i) + ' ------')
 		print(AND.weights)
 		valid_percentage = AND.validate(validate_examples, validate_labels, verbose=True) # Validate it
@@ -60,8 +66,8 @@ if __name__ == '__main__':
 
 		# This is just to break the training if it takes over 50 iterations. (For demonstration purposes)
 		# You shouldn't need to do this as your networks may require much longer to train. 
-		if i == 50: 
-			break
+		# if i == 50: 
+		# 	break
 
 	print(AND.predict([0, 0]))
 	print(AND.predict([1, 0]))
