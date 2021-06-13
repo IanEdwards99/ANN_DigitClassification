@@ -1,16 +1,13 @@
-    #Author: Ian Edwards EDWIAN004
-    #CSC3022F ML assignment 2
-    #Value Iteration driver file
+#Author: Ian Edwards EDWIAN004
+#CSC3022F ML assignment 3
+#XORGate perceptron implementation file
 
 from Perceptron import Perceptron
 import random
 from random import seed
 from random import randint
-import sys
-import argparse
-#text for argument parser:
-text = 'The XOR gate program implements a XOR gate with a feed forward Perceptron ANN' 
 
+#The XOR gate program implements a XOR gate with a feed forward Perceptron ANN
 def main():
     NOT = Perceptron(1)
     AND = Perceptron(2, bias = -1)

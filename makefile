@@ -8,10 +8,10 @@ clean:
 	rm -rf venv
 	find -iname "*.pyc" -delete
 
-ValueIteration:
-	. venv/bin/activate; python3 main.py
+XORGate:
+	. venv/bin/activate; python3 XORGate.py
 	
-QLearning:
-	. venv/bin/activate; python3 main2.py
+Classifier:
+	. venv/bin/activate; python3 Classifier.py
 	
 	

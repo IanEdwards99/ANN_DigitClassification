@@ -1,3 +1,5 @@
-animatplot
 matplotlib
-pytorch
+torch
+Pillow
+torchvision
+numpy

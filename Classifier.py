@@ -10,14 +10,10 @@ from torchvision import datasets, transforms
 from torch import nn, optim
 import PIL
 from PIL import Image
-
 import random
 from random import seed
 from random import randint
-import sys
-import argparse
-#text for argument parser:
-text = 'Classifying handwritten digits with a convolutional neural network built with Pytorch.' 
+#Classifying handwritten digits with a convolutional neural network built with Pytorch.
 plotData = {"loss": [], "accuracy":[], "val_loss" : [], "val_accuracy":[]}
 
 def main():
