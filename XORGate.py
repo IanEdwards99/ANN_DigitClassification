@@ -26,7 +26,7 @@ def main(): #get arguments passed in.
 
     x_train, AND_train, x_val, AND_val = generateData(100, 100, "AND")
     print("AND")
-    AND = train(AND, x_train, AND_train, x_val, AND_val, 0.1)
+    AND = train(AND, x_train, AND_train, x_val, AND_val, 0.01)
     ANDanswer = AND.activate([x1,x2])
     print("AND answer:", ANDanswer)
 
@@ -39,14 +39,13 @@ def main(): #get arguments passed in.
     x_train, OR_train, x_val, OR_val = generateData(100, 100, "OR")
     # x_train = [[0,0], [0, 1], [1,0], [1,1]]
     # OR_train = [0,1,1,1]
-    x_val = x_train
-    OR_val = OR_train
-    print("OR")
-    OR = train(OR, x_train, OR_train, x_val, OR_val, 0.001)
-    print("OR answer:", OR.activate([x1,x2]))
 
-   # output = classify(AND, NOT, OR, x1, x2)
-    #print("Answer:", output)
+    # print("OR")
+    # OR = train(OR, x_train, OR_train, x_val, OR_val, 0.001)
+    # print("OR answer:", OR.activate([x1,x2]))
+
+    output = classify(AND, NOT, OR, x1, x2)
+    print("Answer:", output)
 
 
 
@@ -95,7 +94,9 @@ def generateData(num_train, num_val, gateType="AND"):
     return training_examples, training_labels, validate_examples, validate_labels
 
 def classify(AND, NOT, OR, x1, x2):
-    return AND.activate([NOT.activate([AND.activate([x1,x2])]), OR.activate([x1,x2])])
+    intermediary = NOT.activate([AND.activate([NOT.activate([x1]),NOT.activate([x2])])])
+    return AND.activate([NOT.activate([AND.activate([x1,x2])]),intermediary])
+    #return AND.activate([NOT.activate([AND.activate([x1,x2])]), OR.activate([x1,x2])])
 
 if __name__ == "__main__":
     main()
