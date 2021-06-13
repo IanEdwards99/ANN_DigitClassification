@@ -28,7 +28,7 @@ def main():
     #The dataset stores the examples as well as the ground truths for the examples.
     dataset = datasets.MNIST('', download=False, train=True, transform=transform)
     trainset, valset = torch.utils.data.random_split(dataset, [50000, 10000]) #Split training data into train data and validation data, for three way holdout.
-    testset = datasets.MNIST('', download=False, train=False, transform=transform) #use test set as validation set. Can split data further here. Maybe perform K-fold cross validation?
+    testset = datasets.MNIST('', download=False, train=False, transform=transform) #use test set as validation set. Can split data further here. Could perform K-fold cross validation but performance would suffer.
     #investigate_data(trainset)
 
     #Use a data loader to make the dataset iterable, giving access to sample data. During training we will pass minibatches of samples in, reshuffle the data at every epoch to prevent overfitting.
@@ -55,7 +55,7 @@ def main():
         plotRecordedData()
 
     testModel(testloader, model) #get accuracy from running on test set.
-    #saveModel(model, './my_mnist_model.pt') #save model so no retraining is needed.
+    saveModel(model, './my_mnist_model.pt') #save model so no retraining is needed.
 
     path = input("Please enter a filepath:\n")
     while (path != "exit"):
@@ -112,12 +112,12 @@ def trainModel(model, trainloader, valloader, epoch=10, lr=0.001):
         correct = 0
         total = 0
         #Train for this epoch
-        model.train() #forward pass
+        model.train() 
         for images, labels in trainloader:
             #flatten images:
             images = images.view(images.shape[0], -1)
             optimizer.zero_grad() #set gradients to 0.
-            output = model(images)
+            output = model(images) #forward pass
             loss = criterion(output, labels)
             loss.backward() #Adjust weights with back propagation
             optimizer.step()

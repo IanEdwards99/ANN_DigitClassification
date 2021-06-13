@@ -8,7 +8,7 @@ clean:
 	rm -rf venv
 	find -iname "*.pyc" -delete
 
-XORGate:
+XOR:
 	. venv/bin/activate; python3 XORGate.py
 	
 Classifier:
