@@ -16,6 +16,7 @@ import sys
 import argparse
 #text for argument parser:
 text = 'Classifying handwritten digits with a convolutional neural network built with Pytorch.' 
+plotData = {'loss': [], 'accuracy':[]}
 
 def main():
     #using MNIST data set from MNIST database. Has 60000 training images and 10000 test images.
@@ -39,7 +40,9 @@ def main():
     #investigate_loader(trainloader)
     #images will be flattened out in first layer so first layer is 28x28 = 784 neurons
     inputsize = 784
-    hiddenlayers = [128, 64]
+    hiddenlayers = [128, 64] #hidden layer sizes should be between the size of the input and output layer.
+    #too few neurons = underfitting. Too many = overfitting.
+    #Two hidden layers? Can represent an arbitrary decision boundary to arbitrary accuracy with rational activation functions and can approximate any smooth mapping to any accuracy.
     #output layer is 10 neurons as there are 10 different types of digits to be classified that are then chosen from using a softmax function.
     outputsize = 10
     model = createModel(inputsize, hiddenlayers, outputsize)
@@ -49,6 +52,7 @@ def main():
         print("Model loaded successfully!", model.parameters)
     else:
         trainModel(model, trainloader)
+        plotData()
 
     #use validation set to get model accuracy:
     correct , total = 0, 0
@@ -56,16 +60,16 @@ def main():
         for images, labels in valloader:
             images = images.view(images.shape[0], -1)
             output = model(images)
-            for index, i in enumerate(output):
-                if torch.argmax(i) == labels[index]:
+            for index, tensor in enumerate(output): #for every image evaluated, get index of it and its tensor output. Check the index of the biggest value (most positive) matches the labels.
+                if torch.argmax(tensor) == labels[index]:
                     correct +=1
                 total +=1
     print(f'accuracy: {round(correct/total, 3)}')
 
     #saveModel(model, './my_mnist_model.pt')
-    inputData = input("Please enter a filepath:")
-    while (inputData != "exit"):
-        checkImage(valset[inputData][0], model)
+    # inputData = input("Please enter a filepath:")
+    # while (inputData != "exit"):
+    #     checkImage(valset[inputData][0], model)
 
 def investigate_data(dataset):
     figure = plt.figure(figsize=(6,6))
@@ -114,6 +118,8 @@ def trainModel(model, trainloader):
 
     for e in range(epoch):
         currentloss = 0
+        correct = 0
+        total = 0
         model.train()
         for images, labels in trainloader:
             #flatten images:
@@ -124,8 +130,15 @@ def trainModel(model, trainloader):
             loss.backward()
             optimizer.step()
             currentloss += loss.item()
+
+            for index, tensor in enumerate(output): #for every image evaluated, get index of it and its tensor output. Check the index of the biggest value (most positive) matches the labels.
+                if torch.argmax(tensor) == labels[index]:
+                    correct +=1
+                total +=1
+        print(f'accuracy: {round(correct/total, 3)}')
         print("Epoch: ", e, " : Training Loss = ", currentloss/len(trainloader))
-        print(output)
+        plotData['loss'].append(currentloss/len(trainloader))
+        plotData['accuracy'].append(correct/total)
     #print("Training time:")
 
 def checkImage(image, model):
@@ -139,6 +152,16 @@ def saveModel(model, path):
 
 def loadModel():
     torch.load('./my_mnist_model.pt')
+
+def plotData():
+    plt.subplot(2, 1, 1)
+    plt.title('Cross Entropy Loss')
+    plt.plot(plotData['loss'], color='blue', label='train')
+    # plot accuracy
+    plt.subplot(2, 1, 2)
+    plt.title('Classification Accuracy')
+    plt.plot(plotData['accuracy'], color='blue', label='train')
+    plt.show()
     
 if __name__ == "__main__":
     main()
