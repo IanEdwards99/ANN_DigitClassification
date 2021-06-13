@@ -11,56 +11,58 @@ import argparse
 #text for argument parser:
 text = 'The XOR gate program implements a XOR gate with a feed forward Perceptron ANN' 
 
-def main(): #get arguments passed in.
-    parser = argparse.ArgumentParser(description=text) #setup argument parser.
-    parser.add_argument('x1', type = float)
-    parser.add_argument('x2', type = float)
-    args = parser.parse_args()
-
-    x1 = args.x1
-    x2 = args.x2
-
+def main():
     NOT = Perceptron(1)
-    AND = Perceptron(2)
-    OR = Perceptron(2)
+    AND = Perceptron(2, bias = -1)
+    OR = Perceptron(2, bias = -0.25, seeded_weights=[1,1])
 
-    x_train, AND_train, x_val, AND_val = generateData(100, 100, "AND")
-    print("AND")
-    AND = train(AND, x_train, AND_train, x_val, AND_val, 0.01)
-    ANDanswer = AND.activate([x1,x2])
-    print("AND answer:", ANDanswer)
+    x_train, AND_train, x_val, AND_val = generateData(300, 100, "AND")
+    print("Training GATE_0 - AND Gate")
+    AND, success = train(AND, x_train, AND_train, x_val, AND_val, 0.001)
 
-    x_train, NOT_train, x_val, NOT_val = generateData(100, 100, "NOT")
+    while not success:
+        x_train, AND_train, x_val, AND_val = generateData(300, 100, "AND")
+        AND, success = train(AND, x_train, AND_train, x_val, AND_val, 0.001)
 
-    print("NOT")
-    NOT = train(NOT, x_train, NOT_train, x_val, NOT_val, 0.001)
-    print("NOT answer:", NOT.activate([ANDanswer]))
+    x_train, NOT_train, x_val, NOT_val = generateData(300, 100, "NOT")
+    print("Training GATE_1 - NOT Gate")
+    NOT, success = train(NOT, x_train, NOT_train, x_val, NOT_val, 0.001)
 
-    x_train, OR_train, x_val, OR_val = generateData(100, 100, "OR")
+    while not success:
+        x_train, NOT_train, x_val, NOT_val = generateData(300, 100, "NOT")
+        NOT, success = train(NOT, x_train, NOT_train, x_val, NOT_val, 0.001)
+
+    #x_train, OR_train, x_val, OR_val = generateData(100, 100, "OR")
     # x_train = [[0,0], [0, 1], [1,0], [1,1]]
     # OR_train = [0,1,1,1]
 
     # print("OR")
-    # OR = train(OR, x_train, OR_train, x_val, OR_val, 0.001)
+    #OR = train(OR, x_train, OR_train, x_val, OR_val, 0.001)
     # print("OR answer:", OR.activate([x1,x2]))
-
-    output = classify(AND, NOT, OR, x1, x2)
-    print("Answer:", output)
-
-
+    print("Constructing Network...")
+    print("Done!")
+    data = input("Please enter two inputs:\n")
+    while(data != "exit"):
+        x1, x2 = data.split()
+        output = classify(AND, NOT, (float)(x1), (float)(x2))
+        print("XOR Gate:", output)
+        data = input("Please enter two inputs:\n")
+    print("Exiting...")
+    
+    
 
 def train(perceptron, training_data, training_labels, val_data, val_labels, lr):
     valid_percentage = perceptron.validate(training_data, training_labels, verbose=True)
-    print("before %:", valid_percentage)
+    #print("before %:", valid_percentage)
 
     i = 0
-    while valid_percentage < 0.95: # We want our Perceptron to have an accuracy of at least 80%
+    while valid_percentage < 0.98: # We want our Perceptron to have an accuracy of at least 80%
         i += 1
         perceptron.train(training_data, training_labels, lr)  # Train our Perceptron
-        valid_percentage = round(perceptron.validate(val_data, val_labels, verbose=True),2) # Validate it
-        print(valid_percentage)
-    print("after %:", perceptron.validate(val_data, val_labels, verbose=True))
-    return perceptron
+        valid_percentage = perceptron.validate(val_data, val_labels, verbose=True) # Validate it
+        if i > 2000:
+            return perceptron, False
+    return perceptron, True
 
 def generateData(num_train, num_val, gateType="AND"):
     training_examples = []
@@ -93,7 +95,7 @@ def generateData(num_train, num_val, gateType="AND"):
 
     return training_examples, training_labels, validate_examples, validate_labels
 
-def classify(AND, NOT, OR, x1, x2):
+def classify(AND, NOT, x1, x2):
     intermediary = NOT.activate([AND.activate([NOT.activate([x1]),NOT.activate([x2])])])
     return AND.activate([NOT.activate([AND.activate([x1,x2])]),intermediary])
     #return AND.activate([NOT.activate([AND.activate([x1,x2])]), OR.activate([x1,x2])])

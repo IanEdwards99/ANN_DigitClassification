@@ -35,7 +35,6 @@ class Perceptron:
 	def train(self, examples: [[float]], labels: [float], learning_rate: float):
 		"""NOTE: This function will run the each input example[i] through the activate function and compare its output to the label labels[i].
 		if the output does not match, the perceptron learning rule is applied and each weight of the perceptron is modified in accordance with the rule."""
-		print("Learning rant: ", learning_rate)
 		for i in range(len(examples)):
 
 			predicted_val = self.activate(examples[i])
@@ -53,8 +52,7 @@ class Perceptron:
 			prediction = self.activate(examples[i])
 			if abs(prediction - labels[i]) < self.float_threshold:
 				num_correct += 1.0 
-			# elif verbose:
-			# 	continue
-				#print('Perceptron failed on example' + str(examples[i]) + '\nPredicted: ' + str(prediction) + ' Correct Output: ' + str(labels[i]))
+			elif verbose:
+				print('Perceptron failed on example' + str(examples[i]) + '\nPredicted: ' + str(prediction) + ' Correct Output: ' + str(labels[i]))
 
 		return round(num_correct / len(examples), 2)
