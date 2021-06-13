@@ -1,0 +1,6 @@
+*.zip
+*.tar.gz
+*.pdf
+/MNIST
+/MNIST_JPGS
+*.jpg
